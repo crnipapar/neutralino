@@ -1,0 +1,208 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0-alpha1/js/bootstrap.min.js"
+      integrity="sha512-eHx4nbBTkIr2i0m9SANm/cczPESd0DUEcfl84JpIuutE6oDxPhXvskMR08Wmvmfx5wUpVjlWdi82G5YLvqqJdA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <link rel="stylesheet" href="item.css" />
+
+    <title>Warehouse</title>
+
+    <style>
+      /* Light theme */
+      body.light-theme {
+        background-color: #cfedff;
+        color: #333;
+      }
+
+      /* Dark theme */
+      body.dark-theme {
+        background-color: #383838;
+        color: #333;
+      }
+    </style>
+  </head>
+  <!-- #cfedff  -->
+
+  <body class="light-theme">
+    <div class="container-fluid">
+      <!--                                                                    NASLOV                                    -->
+
+      <div
+        class="row"
+        style="
+          display: grid;
+          grid-template-columns: 70% 30%;
+          background-color: #95cff3;
+          padding-bottom: 20px;
+          margin-bottom: 20px;
+          border-bottom: 6px groove rgb(12, 12, 12);
+        "
+      >
+        <div
+          class="col"
+          style="
+            justify-content: space-between;
+            display: flex;
+            flex-direction: row;
+            margin-top: 20px;
+          "
+        >
+          <div
+            onclick="toggleTheme()"
+            style="display: flex; padding-left: 20px"
+          >
+            <h1 style="font-size: 40px">Narudžbe</h1>
+            <h1 id="heading" style="font-size: 40px">
+              <span></span>
+            </h1>
+          </div>
+
+          <div>
+            <button
+              style="
+                position: fixed;
+                top: 20px;
+                left: 40%;
+                transform: translateX(-50%);
+              "
+              class="btn btn-warning btn-lg"
+              id="newItemButton"
+              onclick="addOrEditItem();"
+            >
+              Nova stavka
+            </button>
+          </div>
+
+          <div style="padding-top: 5px">
+            <label for="month-select"> <h2>Mjesec:</h2></label>
+            <select id="month-select">
+              <option value="01">January</option>
+              <option value="02">February</option>
+              <option value="03">March</option>
+              <option value="04">April</option>
+              <option value="05">May</option>
+              <option value="06">June</option>
+              <option value="07">July</option>
+              <option value="08">August</option>
+              <option value="09">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+            <select id="year-select">
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2029">2029</option>
+              <option value="2030">2030</option>
+            </select>
+            <button
+              class="btn btn-dark"
+              onclick="refreshOtherFunction(() => getItemsByMonth(selectedMonth, selectedYear))"
+              id="filter-button"
+            >
+              Filter
+            </button>
+          </div>
+        </div>
+
+        <!--                                                                BUTTONS FILTERI               -->
+
+        <div class="col" style="margin-top: 20px; padding-left: 30px">
+          <div
+            style="flex: none"
+            class="btn-group"
+            role="group"
+            aria-label="Basic outlined example"
+          >
+            <button
+              type="button"
+              class="btn btn-outline-dark btn-lg"
+              onclick="getItemsByOrderStatus(); toggleHeading(': sve'); refreshOtherFunction(() => getItemsByOrderStatus())"
+            >
+              Sve
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-dark btn-lg"
+              id="activeOrders"
+              onclick="getItemsByOrderStatus(false); refreshOtherFunction(() => getItemsByOrderStatus(false))"
+            >
+              Aktivne
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-outline-dark btn-lg"
+              id="activeOrders"
+              onclick="getItemsByOrderStatus('currentMonth'); refreshOtherFunction(() => getItemsByOrderStatus('currentMonth'))"
+            >
+              Tekući mjesec
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary btn-lg"
+              id="orderHistory"
+              onclick="getItemsByOrderStatus(true); refreshOtherFunction(() => getItemsByOrderStatus(true))"
+            >
+              Riješene
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GLAVNI DIO-->
+      <div style="display: grid; grid-template-columns: 70% 30%">
+        <div id="itemsContainer"></div>
+
+        <!--                                                                     DIJELOVI                                    -->
+
+        <div class="card part-container2">
+          <div class="card-header" id="item-fk-value">Dijelovi</div>
+
+          <!--                                                                     THIS IS GONNA LOOP                                   -->
+          <div id="partsContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!--                                                                         MODALI                              -->
+
+    <!--   MODAL NOVA/EDIT STAVKA -->
+    <div
+      class="modal fade"
+      id="modalItem"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+    ></div>
+
+  
+
+    <script src="js/neutralino.js"></script>
+
+    <!-- Your app's source files -->
+    <script type="text/javascript" src="js/script.js"></script>
+    
+    <script>
+      window.onload = getItemsByOrderStatus;
+    </script>
+</html>
