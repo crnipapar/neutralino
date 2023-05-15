@@ -57,7 +57,7 @@ const populateItems = async (data) => {
       </div> \
       <div class="order-info"> \
         <h2> \
-          Ukupno EUR:<strong>${e.totalAmount}</strong> \
+          Ukupno EUR: <strong>${e.totalAmount}</strong> \
         </h2> \
         <h2 style="margin-bottom: 20px"> \
           Polog EUR: <strong >${e.downpayment}</strong> \
